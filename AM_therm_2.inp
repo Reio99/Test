@@ -1,0 +1,102 @@
+*heading
+*INCLUDE, INPUT=all_1.msh
+*INCLUDE, INPUT=Eb1.msh
+*INCLUDE, INPUT=Eb2.msh
+
+*INCLUDE, INPUT=POWDER.mat
+*INCLUDE, INPUT=Deposit.mat
+*INCLUDE, INPUT=X5CRNI.mat
+**First
+*solid section, material=Deposit, elset=Eb1
+*solid section, material=Deposit, elset=Eb2
+**
+*INITIAL CONDITIONS, TYPE=TEMPERATURE
+*INCLUDE, INPUT=AM_therm_1_fixed_terminado.dat
+**
+**Include, input=AM_therm_1_fixed_terminado.dat
+*PHYSICAL CONSTANTS, ABSOLUTE ZERO=-273.15, STEFAN BOLTZMANN=5.669E-11
+**physical constants, stefan boltzmann=5.669e-11, absolute zero=-273.15
+**stefan boltzmann=5.669e-8 W/m²K⁴
+**
+**		STEP 1:		Do Nothing			**
+************************************
+************************************
+**		STEP 1:		Do Nothing			**
+************************************
+*STEP, INC=1000
+*COUPLED TEMPERATURE-DISPLACEMENT
+**, DIRECT=NO
+0.005, 0.01,
+**
+*NODE PRINT, NSET=Nall
+NT
+*NODE FILE
+NT,SDV
+**
+*EL FILE
+HFL,SDV
+**
+*END STEP
+**
+**
+************************************
+**		STEP 2:		Welding			**
+************************************
+**
+**
+*STEP, INC=100000
+*COUPLED TEMPERATURE-DISPLACEMENT
+16.395, 16.395,1e-5, , 0.1
+*CONTROLS, PARAMETERS=TIME INCREMENTATION
+12,16,9,50,20,4,,5, ,
+**CHANGE SOLID SECTION,MATERIAL=Deposit,ELSET=Eb1
+**Convection based on all
+*FILM,OP=NEW
+*INCLUDE,INPUT=Eb1.flm
+** Radiate based on all
+*RADIATE,OP=NEW
+*INCLUDE,INPUT=Eb1.rad
+** Inhomogeneously flux based on all
+**
+*NODE PRINT, NSET=Nall
+NT
+*NODE FILE,FREQUENCY=10
+NT
+**
+*EL FILE,FREQUENCY=10
+HFL,SDV
+**
+*END STEP
+********************************************
+**STEP3**********************************
+********************************************
+*STEP, INC=100000
+*COUPLED TEMPERATURE-DISPLACEMENT
+0.005, 16.395,1e-5, , 0.1
+*CONTROLS, PARAMETERS=TIME INCREMENTATION
+12,16,9,50,20,4,,5, ,
+***CHANGE SOLID SECTION,MATERIAL=X5CRNI,ELSET=Eb1
+**CHANGE SOLID SECTION,MATERIAL=Deposit,ELSET=Eb2
+**Convection based on all
+*FILM,OP=NEW
+*INCLUDE,INPUT=Eb2.flm
+** Radiate based on all
+*RADIATE,OP=NEW
+*INCLUDE,INPUT=Eb1.rad
+
+** Inhomogeneously flux based on all
+*DFLUX, OP=NEW
+ **EFirst, BFNU, 1
+Eb2, BFNU, 1
+**
+*NODE PRINT, NSET=Nall
+NT
+*NODE FILE,FREQUENCY=10
+NT
+**
+*EL FILE,FREQUENCY=10
+HFL,SDV
+**
+*END STEP
+**
+**
