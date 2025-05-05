@@ -71,7 +71,8 @@ NT, U
 **
 *EL FILE
 HFL, S, PEEQ  
-*NOD
+*NODE FILE, FREQUENCY=1
+NT
 **
 *END STEP
 **
