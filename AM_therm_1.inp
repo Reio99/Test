@@ -1,13 +1,14 @@
 *heading
 *INCLUDE, INPUT=all_1.msh
 *INCLUDE, INPUT=Eb1.msh
+*INCLUDE, INPUT=Eb2.msh
 *INCLUDE, INPUT=POWDER.mat
 *INCLUDE, INPUT=Deposit.mat
 *INCLUDE, INPUT=X5CRNI.mat
 *INCLUDE, INPUT=ASTM_A36.mat
 **First
 *solid section, material=ASTM_A36, elset=Eb1
-
+*solid section, material=ASTM_A36, elset=Eb2
 **
 **
 *INITIAL CONDITIONS, TYPE=TEMPERATURE
@@ -16,30 +17,32 @@ Nall,20.
 *PHYSICAL CONSTANTS, ABSOLUTE ZERO=-273.15, STEFAN BOLTZMANN=5.669E-11
 **physical constants, stefan boltzmann=5.669e-11, absolute zero=-273.15
 **stefan boltzmann=5.669e-8 W/m²K⁴
-**
-**		STEP 1:		Do Nothing			**
-************************************
 ************************************
 **		STEP 1:		Do Nothing			**
 ************************************
 *STEP, INC=500
+**
 *COUPLED TEMPERATURE-DISPLACEMENT
 **, DIRECT=NO
 0.005, 0.01,
 **
-*OUTPUT, FREQUENCY=1
+*CHANGE SOLID SECTION,MATERIAL=Powder,ELSET=Eb2
+**
+*MODEL CHANGE, TYPE=ELEMENT, REMOVE
+Eb2
+**
 *NODE PRINT, NSET=Nall
 NT, U  
 *NODE FILE
 NT, U
 **
 *EL FILE
-HFL, S  
-*NODE FILE, FREQUENCY=1
+HFL, S
+**
+*NODE FILE
+**
 NT, U
-**
 *END STEP
-**
 **
 ************************************
 **		STEP 2:		Welding			**
@@ -47,14 +50,14 @@ NT, U
 **
 *STEP, INC=100000
 *COUPLED TEMPERATURE-DISPLACEMENT
-0.005, 16.395,1e-5, , 0.1
+0.005,16.395,1e-5, , 0.1
 *CONTROLS, PARAMETERS=TIME INCREMENTATION
 12,16,9,50,20,4,,5, ,
-
 **CHANGE SOLID SECTION,MATERIAL=Deposit,ELSET=Eb1
 **Convection based on all
 *FILM,OP=NEW
 *INCLUDE,INPUT=Eb1.flm
+*INCLUDE,INPUT=Eb2.flm
 ** Radiate based on all
 *RADIATE,OP=NEW
 *INCLUDE,INPUT=Eb1.rad
@@ -63,17 +66,34 @@ NT, U
  **EFirst, BFNU, 1
 Eb1, BFNU, 1
 **
-*OUTPUT, FREQUENCY=1
 *NODE PRINT, NSET=Nall
 NT
-*NODE FILE
+*NODE FILE,FREQUENCY=1
 NT, U
 **
 *EL FILE
 HFL, S, PEEQ  
-*NODE FILE, FREQUENCY=1
-NT
-**
 *END STEP
 **
 **
+*STEP, INC=1000
+*restart, write
+*COUPLED TEMPERATURE-DISPLACEMENT
+**, DIRECT=NO
+0.005, 0.01,
+**
+*NODE PRINT, NSET=Nall
+NT
+**
+*NODE FILE,FREQUENCY=1
+NT, U
+**
+*EL FILE
+HFL, S, PEEQ  
+**
+*MODEL CHANGE, TYPE=ELEMENT, Add
+Eb2
+**
+*CHANGE SOLID SECTION,MATERIAL=ASTM_A36,ELSET=Eb2
+**
+*END STEP
